@@ -45,7 +45,7 @@ class Maze():
             x, y = self.current_x, self.current_y
             self.current_x += 1 if self.x_right else -1
 
-            if not (-1 < y < len(self.rows) - 1):
+            if not (-1 < y < len(self.rows)):
                 # Finished cycling, escape calling loop
                 # reinitialise for next cycle
                 self._init_x()
@@ -88,6 +88,8 @@ class Maze():
         """
         self.x_right = x_right
         self.y_up = y_up
+        self._init_x()
+        self._init_y()
 
 class Solver():
     def __init__(self):
@@ -104,6 +106,7 @@ test_grid = [
 ]
 
 maze = Maze(test_grid)
+maze.configure_iteration(x_right=False, y_up=False)
 
 for num in maze:
     print(num)
