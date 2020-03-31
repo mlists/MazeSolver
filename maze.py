@@ -12,6 +12,7 @@ class Node:
 
     def __init__(self, move_cost: int, parent: Maze, _x: int, _y: int):
         self.came_from = None
+        self.best_pathing_score = None
         self.parent = parent
         if move_cost < 0:
             self.pathable = False
