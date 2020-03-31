@@ -14,9 +14,9 @@ test_grid2 = [
     [12, 13, 14, 15],
 ]
 
-maze1 = Maze(test_grid1)
+maze1 = Maze(test_grid1, value_type=int)
 
-maze2 = Maze(test_grid2)
+maze2 = Maze(test_grid2, value_type=int)
 
 
 def test_iteration(maze1: Maze = maze1, maze2: Maze = maze2):
@@ -60,5 +60,17 @@ def test_indexing(maze1: Maze = maze1, maze2: Maze = maze2):
     maze1.configure_dimensions(x_right=False, y_up=True)
     assert maze1[0, 0] == 3
 
+test_grid3 = [
+[1, 1, 1, 1],
+[-1, -1, 1, 1],
+[-1, -1, 1, 1],
+[1, 1, 1, 1],
+]
 
+maze3 = Maze(test_grid3)
 
+def test_node(maze = maze3):
+    assert maze[0, 0].pathable
+    assert maze[0, 0].move_cost == 1
+    assert not maze[0, 1].pathable
+    assert maze[0, 1].move_cost == None
