@@ -1,5 +1,5 @@
-from typing import List
-from maze import Maze, Node
+from typing import List, Tuple
+# from .maze import Maze, Node
 
 def find_insterion_index(sorted_array: List, target: object, getter: str) -> int:
     """
@@ -17,10 +17,11 @@ def find_insterion_index(sorted_array: List, target: object, getter: str) -> int
     The index of at which to insert the object
     """
     low = 0
-    high = len(sorted_array)
+    high = len(sorted_array) - 1
     found = False
+    mid = (low + high) // 2
     while low < high and found is False:
-        mid = (low + high) // 2
+        mid = (low + high + 1) // 2
         # fetch and then call the get functions
         value = getattr(sorted_array[mid], getter)
         target_value = getattr(target, getter) + 1
@@ -34,30 +35,29 @@ def find_insterion_index(sorted_array: List, target: object, getter: str) -> int
         # there should not duplicate data but this handles it anyway
         # varient of a linear search
         mid += 1
-        value = getattr(sorted_array[mid], getter)()
-        target_value = getattr(target, getter)() + 1
+        value = getattr(sorted_array[mid], getter)
+        target_value = getattr(target, getter) + 1
         if value != target_value:
             found = False
     return mid
 
 
 class Solver:
-    def __init__(self):
-        self.maze = None
+    def __init__(self, maze, entry, goal):
+        self.maze = maze
+        self.entry = self.maze[entry]
+        self.goal = self.maze[goal]
+
+        self.entry.best_pathing_score = 0
 
         # Open is the list (used as a queue) of all cells that need to be
         # checked, initialised to the maze entry in take input.
         # Cells are added to open if they are adjacent to the currently
         # inspected cell and not in either open or closed.
-        self.open: List[Node] = None
+        self.open: List[Node] = [self.entry]
         # A list containing all of the cells we have already checked
-        self.closed: List[Node] = None
-
-        self.entry = None
-        self.goal = None
-
-    def take_input(self, maze):
-        self.maze = maze
+        self.closed: List[Node] = []
+        self.path = []
 
     def find_distance(self, p1: Tuple[int, int], p2: Tuple[int, int]) -> int:
         """
@@ -82,10 +82,14 @@ class Solver:
             current = self.open.pop(0)
             self.closed.append(current)
             for neighbour in current.get_neighbours():
+                if neighbour is None:
+                    continue
+                elif not neighbour.pathable:
+                    continue
                 cost = (
-                    neighbour.best_pathing_score
-                    + current.movement_cost
-                    + neighbour.movement_cost
+                    current.best_pathing_score
+                    + current.move_cost
+                    + neighbour.move_cost
                 )
                 if neighbour in self.open and cost < neighbour.best_pathing_score:
                     self.open.remove(neighbour)
@@ -93,6 +97,14 @@ class Solver:
                     self.closed.remove(neighbour)
                 if neighbour not in self.open and neighbour not in self.closed:
                     neighbour.best_pathing_score = cost
-                    find_insterion_index(self.open, neighbour, "best_pathing_score")
-                    self.open.insert()
-                    neighbour.parent = current
+                    index = find_insterion_index(self.open, neighbour, "best_pathing_score")
+                    self.open.insert(index, neighbour)
+                    neighbour.came_from = current
+        
+        current = self.goal
+        while current is not self.entry:
+            self.path.append(current.get_pos())
+            current = current.came_from
+        self.path.append(self.entry.get_pos())
+        
+        print(self.path)
