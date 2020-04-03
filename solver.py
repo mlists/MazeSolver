@@ -73,7 +73,7 @@ class Solver:
         x2, y2 = p2
         return abs(x2 - x1) + abs(y2 - y1)
 
-    def execute(self) -> None:
+    def execute(self) -> List[List[int]]:
         """
         The main solver loop, runs constantly until a solution is found or all
         options are exhausted i.e. the maze is unsolveable
@@ -100,11 +100,17 @@ class Solver:
                     index = find_insterion_index(self.open, neighbour, "best_pathing_score")
                     self.open.insert(index, neighbour)
                     neighbour.came_from = current
-        
-        current = self.goal
-        while current is not self.entry:
-            self.path.append(current.get_pos())
-            current = current.came_from
-        self.path.append(self.entry.get_pos())
-        
-        print(self.path)
+            if len(self.open) == 0:
+                break
+        else:
+            # this else fires only when the loop is completed, not when escaped by the break
+            current = self.goal
+            while current is not self.entry:
+                self.path.append(current.get_pos())
+                current = current.came_from
+            if len(self.path) >= 1:
+                # don't append this if there is no solution
+                self.path.append(self.entry.get_pos())
+            self.path.reverse()
+            print(self.path)
+        return self.path
