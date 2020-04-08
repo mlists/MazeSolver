@@ -97,7 +97,7 @@ class Solver:
                     self.closed.remove(neighbour)
                 if neighbour not in self.open and neighbour not in self.closed:
                     neighbour.best_pathing_score = cost
-                    index = find_insterion_index(self.open, neighbour, "best_pathing_score")
+                    index = find_insterion_index(self.open, neighbour, "best_pathing_score") + 1
                     self.open.insert(index, neighbour)
                     neighbour.came_from = current
             if len(self.open) == 0:
