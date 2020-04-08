@@ -112,5 +112,4 @@ class Solver:
                 # don't append this if there is no solution
                 self.path.append(self.entry.get_pos())
             self.path.reverse()
-            print(self.path)
         return self.path
