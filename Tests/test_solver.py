@@ -29,7 +29,7 @@ def test_path_len():
     """
     assert len(path) == 13
 
-def test_path():
+def test_order():
     """
     Test that the path begins and ends in the correct places
     Test that the path order is correct
@@ -59,3 +59,22 @@ def test_no_path():
     goal3 = [2, 2]
     solver3 = Solver(maze3, entry3, goal3)
     assert solver3.execute() == []
+
+def test_path():
+    values4 = [
+        [1, 1, 1, -1, 1, 1, 1, 1],
+        [1, -1, 1, -1, 1, 1, 1, 1],
+        [1, -1, 1, -1, 1, 1, 1, 1],
+        [1, -1, 1, -1, 1, 1, 1, 1],
+        [1, 1, 1, -1, 1, 1, 1, 1],
+        [1, -1, 1, -1, 1, 1, 1, 1],
+        [1, -1, 1, -1, 1, 1, 1, 1],
+        [1, -1, 1, 1, 1, 1, 1, 1],
+    ]
+    maze4 = Maze(values4)
+    entry4 = [0, 0]
+    goal4 = [7, 7]
+    solver4 = Solver(maze4, entry4, goal4)
+    path = solver4.execute()
+    assert [1, 3] in path
+    assert len(path) == 21
