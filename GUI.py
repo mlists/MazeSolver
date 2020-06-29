@@ -9,8 +9,6 @@ from maze import Maze
 class SampleApp(tk.Tk):
     """The overall GUI class"""
 
-    GRID_SIZE = 1
-
     def select(self, x, y):
         if self.choose_entry:
             self.entry = [x, y]
@@ -32,10 +30,12 @@ class SampleApp(tk.Tk):
 
     def run(self):
         self.wipe_path()
+        # erase any exising paths
         maze = Maze(self.map)
         maze.configure_dimensions(x_right=True, y_up=False)
         solver = Solver(maze, self.entry, self.goal)
         path = solver.execute()
+        # setup the solver for the current maze
         for tile in path[1:-1]:
             # colour the path excluding the start and finish
             x, y = tile
@@ -50,6 +50,7 @@ class SampleApp(tk.Tk):
                 elif self.map[y][x] == -1:
                     tile.configure(bg="black")
         self.colour_ends()
+        self.console_var.set("")
     
     def colour_ends(self):
         # colour the goal and entry
@@ -65,52 +66,89 @@ class SampleApp(tk.Tk):
         self.choose_goal =  True
 
     def __init__(self):
+        """
+        Run on startup, creates the GUI elements
+        """
         tk.Tk.__init__(self)
 
         # Variable definitions
         self.console_var = tk.StringVar()
+        self.grid_size = tk.IntVar(master=None, value=10)
+        # initialise the gridsize with a default value
 
+        self.define_widgets()
+
+        self.setup_GUI(from_init=True)
+    
+    def define_widgets(self):
         # GUI frame creation
         self.frame = tk.Frame(self)
+        self.button_frame = tk.Frame(self)
 
         # Other GUI creation
         self.console_label = tk.Label(self, textvariable=self.console_var)
-        self.run_button = tk.Button(self, text="Run", command=self.run)
-        self.entry_button = tk.Button(self, text="New Entry", command=self.new_entry)
-        self.goal_button = tk.Button(self, text="New Goal", command=self.new_goal)
+        self.run_button = tk.Button(self.button_frame, text="Solve Maze", command=self.run, width=12)
+        self.entry_button = tk.Button(self.button_frame, text="Place Entry", command=self.new_entry, width=12)
+        self.goal_button = tk.Button(self.button_frame, text="Place Goal", command=self.new_goal, width=12)
+        self.new_gridsize = tk.Entry(self.button_frame, textvariable=self.grid_size, width=30)
+        self.change_size_button = tk.Button(self.button_frame, text="Change Size", command=self.setup_GUI, width=12)
+    
+    def destroy_widgets(self):
+        self.frame.destroy()
+        self.console_label.destroy()
+        self.button_frame.destroy()
 
-        self.tile_rows = []
-        for row in range(self.GRID_SIZE):
-            self.tile_rows.append([])
-            for column in range(self.GRID_SIZE):
-                self.tile_rows[-1].append(
-                    tk.Button(
-                        self.frame,
-                        command=partial(self.select, column, row),
-                        width=3,
-                        anchor="w",
+    def setup_GUI(self, from_init=False):
+        if int(self.grid_size.get()) > 0:
+
+            if not from_init:
+                # possibly not the cleanest way to do this
+                # destroys and recreats all widgets so they appear in the correct order
+                self.destroy_widgets()
+                self.define_widgets()
+
+            self.tile_rows = []
+            for row in range(self.grid_size.get()):
+                self.tile_rows.append([])
+                for column in range(self.grid_size.get()):
+                    self.tile_rows[-1].append(
+                        tk.Button(
+                            self.frame,
+                            command=partial(self.select, column, row),
+                            width=3,
+                            anchor="w",
+                        )
                     )
-                )
-                # circumvent issues with using parameters in command calls using partial function
-                self.tile_rows[row][column].grid(column=column, row=self.GRID_SIZE - row)
-        # self.tile_rows.reverse()
+                    # circumvent issues with using parameters in command calls using partial function
+                    self.tile_rows[row][column].grid(column=column, row=self.grid_size.get() - row)
+            # self.tile_rows.reverse()
 
-        self.map = []
-        for _ in range(self.GRID_SIZE):
-            self.map.append([1] * self.GRID_SIZE)
+            self.map = []
+            for _ in range(self.grid_size.get()):
+                self.map.append([1] * self.grid_size.get())
 
-        self.entry = [0, 0]
-        self.goal = [self.GRID_SIZE-1, self.GRID_SIZE-1]
+            self.entry = [0, 0]
+            self.goal = [self.grid_size.get()-1, self.grid_size.get()-1]
 
-        self.choose_entry = False
-        self.choose_goal = False
+            self.choose_entry = False
+            self.choose_goal = False
 
-        # GUI positioning
-        self.frame.pack()
-        self.run_button.pack()
-        self.entry_button.pack()
-        self.goal_button.pack()
-        self.console_label.pack()
+            # Outer frame positioning
+            self.frame.pack()
+            self.button_frame.pack()
+            self.console_label.pack()
+
+            # Positioning of the buttons using columns and rows
+            self.run_button.grid(column=0, row=0)
+            self.entry_button.grid(column=1, row=0)
+            self.goal_button.grid(column=2, row=0)
+            self.new_gridsize.grid(column=1, row=1, columnspan=2)
+            self.change_size_button.grid(column=0, row=1)
+            
+
+            self.colour_ends()
+        else:
+            self.console_var.set("Grid size must ba a positive integer")
 
 
 app = SampleApp()
