@@ -20,11 +20,11 @@ def find_insterion_index(sorted_array: List, target: object, getter: str) -> int
     high = len(sorted_array) - 1
     found = False
     mid = (low + high) // 2
+    target_value = getattr(target, getter) + 1
     while low < high and found is False:
         mid = (low + high + 1) // 2
         # fetch and then call the get functions
         value = getattr(sorted_array[mid], getter)
-        target_value = getattr(target, getter) + 1
         if value < target_value:
             low = mid
         elif value > target_value:
@@ -36,7 +36,6 @@ def find_insterion_index(sorted_array: List, target: object, getter: str) -> int
         # varient of a linear search
         mid += 1
         value = getattr(sorted_array[mid], getter)
-        target_value = getattr(target, getter) + 1
         if value != target_value:
             found = False
     return mid
